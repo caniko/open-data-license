@@ -8,6 +8,10 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, EnumString};
 use utoipa::ToSchema;
 
+mod data_use_restriction;
+
+pub use data_use_restriction::{DataUseRestrictionKind, DataUseRestrictionSpec};
+
 /// Data license types for datasets.
 #[derive(
     Debug,
