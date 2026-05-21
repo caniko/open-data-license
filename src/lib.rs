@@ -1,12 +1,30 @@
-//! Open data license enum with SPDX identifiers and compatibility rules.
+#![deny(missing_docs)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+//! Open data license metadata with SPDX identifiers and compatibility rules.
 //!
 //! Supports the major open licenses used in scientific/research data:
 //! Creative Commons (CC0/BY/BY-SA/BY-NC/BY-NC-SA) and Open Data Commons
 //! (PDDL/ODC-BY/ODbL).
+//!
+//! # Example
+//!
+//! ```
+//! use open_data_license::DataLicense;
+//!
+//! let license = DataLicense::CcBySa;
+//!
+//! assert_eq!(license.spdx_id(), "CC-BY-SA-4.0");
+//! assert!(license.requires_attribution());
+//! assert!(license.requires_share_alike());
+//! assert!(license.is_compatible_with(&DataLicense::CcBy));
+//! ```
+//!
+//! The compatibility helpers are metadata-level workflow helpers, not legal
+//! advice. Surface the SPDX identifier and rights URI when presenting license
+//! choices to end users.
 
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, EnumString};
-use utoipa::ToSchema;
 
 mod data_use_restriction;
 
@@ -25,33 +43,39 @@ pub use data_use_restriction::{DataUseRestrictionKind, DataUseRestrictionSpec};
     EnumIter,
     EnumString,
     Display,
-    ToSchema,
 )]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum DataLicense {
-    // Creative Commons Licenses
+    /// Creative Commons Zero v1.0 Universal public-domain dedication.
     #[strum(serialize = "CC0")]
     #[serde(rename = "CC0")]
     Cc0,
+    /// Creative Commons Attribution 4.0 International.
     #[strum(serialize = "CC_BY")]
     #[serde(rename = "CC_BY")]
     CcBy,
+    /// Creative Commons Attribution-ShareAlike 4.0 International.
     #[strum(serialize = "CC_BY_SA")]
     #[serde(rename = "CC_BY_SA")]
     CcBySa,
+    /// Creative Commons Attribution-NonCommercial 4.0 International.
     #[strum(serialize = "CC_BY_NC")]
     #[serde(rename = "CC_BY_NC")]
     CcByNc,
+    /// Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International.
     #[strum(serialize = "CC_BY_NC_SA")]
     #[serde(rename = "CC_BY_NC_SA")]
     CcByNcSa,
 
-    // Open Data Commons Licenses
+    /// Open Data Commons Public Domain Dedication and License v1.0.
     #[strum(serialize = "PDDL")]
     #[serde(rename = "PDDL")]
     Pddl,
+    /// Open Data Commons Attribution License v1.0.
     #[strum(serialize = "ODC_BY")]
     #[serde(rename = "ODC_BY")]
     OdcBy,
+    /// Open Data Commons Open Database License v1.0.
     #[strum(serialize = "ODC_ODbL")]
     #[serde(rename = "ODC_ODbL")]
     OdcOdbl,
@@ -161,9 +185,9 @@ impl DataLicense {
     ///
     /// Two licenses are compatible when the resulting combined dataset can
     /// legally satisfy both licenses' requirements. Public-domain licenses
-    /// are compatible with everything. ShareAlike licenses are only compatible
-    /// with themselves or less-restrictive licenses. NC and non-NC licenses
-    /// are incompatible.
+    /// are compatible with everything. NC and non-NC licenses are incompatible.
+    /// When both licenses require share-alike terms, this crate treats matching
+    /// restrictiveness bands as compatible.
     pub const fn is_compatible_with(&self, other: &DataLicense) -> bool {
         // Public domain is always compatible
         if self.is_public_domain() || other.is_public_domain() {
