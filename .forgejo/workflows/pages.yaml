@@ -2,7 +2,7 @@ name: Publish Pages
 
 on:
   push:
-    branches: [main]
+    branches: [trunk]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -6,9 +6,13 @@
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    git-hooks.url = "github:cachix/git-hooks.nix";
 
     flake-utils.inputs.systems.follows = "systems";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+    git-hooks.inputs.nixpkgs.follows = "nixpkgs";
     systems.url = "github:nix-systems/default";
   };
 
@@ -18,6 +22,8 @@
     flake-utils,
     crane,
     rust-overlay,
+    treefmt-nix,
+    git-hooks,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -36,10 +42,19 @@
         };
 
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-        crate = craneLib.buildPackage (commonArgs // {inherit cargoArtifacts;});
+        package = craneLib.buildPackage (commonArgs // {inherit cargoArtifacts;});
+        treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./nix/treefmt.nix);
+        pre-commit-check = git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = import ./nix/pre-commit.nix {
+            inherit pkgs;
+            treefmtWrapper = treefmtEval.config.build.wrapper;
+            inherit rustToolchain;
+          };
+        };
         docs = pkgs.stdenv.mkDerivation {
           pname = "open-data-license-docs";
-          version = "0.1.0";
+          version = "0.2.0";
           src = pkgs.lib.fileset.toSource {
             root = ./.;
             fileset = pkgs.lib.fileset.maybeMissing ./docs;
@@ -56,13 +71,14 @@
         };
       in {
         packages = {
-          default = crate;
+          default = package;
           docs = docs;
           site = docs;
         };
 
         checks = {
-          default = crate;
+          default = package;
+          formatting = treefmtEval.config.build.check self;
           fmt = craneLib.cargoFmt {inherit src;};
           clippy = craneLib.cargoClippy (commonArgs
             // {
@@ -87,13 +103,20 @@
           docs = docs;
         };
 
+        formatter = treefmtEval.config.build.wrapper;
+
         devShells.default = pkgs.mkShell {
-          packages = [
-            rustToolchain
-            pkgs.cargo-audit
-            pkgs.cargo-deny
-            pkgs.mdbook
-          ];
+          packages =
+            [
+              rustToolchain
+              pkgs.cargo-audit
+              pkgs.cargo-deny
+              pkgs.mdbook
+              pkgs.pre-commit
+              pkgs.rust-analyzer
+            ]
+            ++ pre-commit-check.enabledPackages;
+          shellHook = pre-commit-check.shellHook;
         };
       }
     );

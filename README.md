@@ -1,16 +1,21 @@
 # open-data-license
 
+[![crates.io](https://img.shields.io/crates/v/open-data-license)](https://crates.io/crates/open-data-license)
+[![docs.rs](https://img.shields.io/docsrs/open-data-license)](https://docs.rs/open-data-license)
+[![license](https://img.shields.io/crates/l/open-data-license)](https://codeberg.org/caniko/open-data-license/src/branch/trunk/LICENSE)
+[![CI](https://codeberg.org/caniko/open-data-license/actions/workflows/ci.yaml/badge.svg?branch=trunk)](https://codeberg.org/caniko/open-data-license/actions)
+
 `open-data-license` provides a small Rust enum for open data licenses used in scientific and research datasets. It exposes SPDX identifiers, canonical rights URIs, display names, and compatibility helpers for combining licensed datasets.
 
-The crate currently covers Creative Commons data licenses (`CC0`, `CC BY`, `CC BY-SA`, `CC BY-NC`, `CC BY-NC-SA`) and Open Data Commons licenses (`PDDL`, `ODC-BY`, `ODbL`).
+The crate currently covers Creative Commons data licenses (`CC0`, `CC BY`, `CC BY-SA`, `CC BY-NC`, `CC BY-NC-SA`), Open Data Commons licenses (`PDDL`, `ODC-BY`, `ODbL`), Linux Foundation Community Data License Agreement licenses (`CDLA-Permissive-2.0`, `CDLA-Sharing-1.0`), and Creative Commons Public Domain Mark (`PDM`).
 
 ## Install
 
-After publication to crates.io:
+When using a published crates.io release:
 
 ```toml
 [dependencies]
-open-data-license = "0.1.0"
+open-data-license = "0.2"
 ```
 
 Enable the optional `utoipa` feature when deriving OpenAPI schemas for the crate types:
@@ -20,11 +25,11 @@ Enable the optional `utoipa` feature when deriving OpenAPI schemas for the crate
 open-data-license = { version = "0.2", features = ["utoipa"] }
 ```
 
-Until the crates.io release is published, depend on the tagged Codeberg release:
+If you need repository state that is newer than the last published release, depend on a Git revision or a known tag:
 
 ```toml
 [dependencies]
-open-data-license = { git = "https://codeberg.org/caniko/open-data-license.git", tag = "v0.1.0" }
+open-data-license = { git = "https://codeberg.org/caniko/open-data-license.git", tag = "0.2.0" }
 ```
 
 ## Example
@@ -42,7 +47,7 @@ assert!(license.is_compatible_with(&DataLicense::CcBy));
 
 ## Compatibility Model
 
-The compatibility helpers provide metadata-level checks for dataset combination workflows. Public-domain dedications are compatible with every supported license. Non-commercial and commercial-use licenses are treated as incompatible. Share-alike licenses are treated as compatible with licenses in the same restrictiveness band or less restrictive non-share-alike licenses.
+The compatibility helpers provide metadata-level checks for dataset combination workflows. Public-domain dedications are compatible with every supported license. Commercial and non-commercial licenses are incompatible. Share-alike obligations are family-local, so cross-family combinations such as `CC-BY-SA-4.0` with `ODbL-1.0` are rejected conservatively.
 
 This crate does not provide legal advice. Consumers should surface the underlying SPDX identifier and rights URI so downstream users can review the actual license terms.
 

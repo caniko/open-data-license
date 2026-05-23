@@ -1,20 +1,13 @@
 [advisories]
 version = 2
-yanked = "deny"
-ignore = []
 
 [licenses]
 version = 2
-confidence-threshold = 0.8
-allow = [
-  "Apache-2.0",
-  "MIT",
-  "Unicode-3.0",
-]
+allow = ["Apache-2.0", "MIT", "Unicode-3.0"]
 
 [bans]
 multiple-versions = "warn"
-wildcards = "deny"
+wildcards = "allow"
 
 [sources]
 unknown-registry = "deny"

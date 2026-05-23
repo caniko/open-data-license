@@ -3,6 +3,7 @@
 /// These restrictions are intentionally distinct from `AccessPolicy`:
 /// the data may remain publicly downloadable while still carrying source-level
 /// publication or reuse constraints that clients should surface.
+#[non_exhaustive]
 #[derive(
     Debug,
     Clone,
@@ -24,6 +25,7 @@ pub enum DataUseRestrictionKind {
 }
 
 /// Structured metadata describing a dataset-specific usage restriction.
+#[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct DataUseRestrictionSpec {

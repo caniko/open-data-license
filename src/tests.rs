@@ -2,6 +2,16 @@ use super::*;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 
+#[cfg(feature = "utoipa")]
+#[test]
+fn utoipa_schema_derives_are_available() {
+    fn assert_to_schema<T: utoipa::ToSchema>() {}
+
+    assert_to_schema::<DataLicense>();
+    assert_to_schema::<DataUseRestrictionKind>();
+    assert_to_schema::<DataUseRestrictionSpec>();
+}
+
 #[test]
 fn serde_roundtrip_all() {
     let expected: &[(DataLicense, &str)] = &[
@@ -13,6 +23,9 @@ fn serde_roundtrip_all() {
         (DataLicense::Pddl, "\"PDDL\""),
         (DataLicense::OdcBy, "\"ODC_BY\""),
         (DataLicense::OdcOdbl, "\"ODC_ODbL\""),
+        (DataLicense::CdlaPermissive2_0, "\"CDLA_PERMISSIVE_2_0\""),
+        (DataLicense::CdlaSharing1_0, "\"CDLA_SHARING_1_0\""),
+        (DataLicense::Pdm, "\"PDM\""),
     ];
     for &(variant, json_str) in expected {
         let json = serde_json::to_string(&variant).unwrap();
@@ -29,6 +42,11 @@ fn strum_roundtrip_all() {
         let back = DataLicense::from_str(&s).unwrap();
         assert_eq!(license, back);
     }
+}
+
+#[test]
+fn default_license_is_cc0() {
+    assert_eq!(DataLicense::default(), DataLicense::Cc0);
 }
 
 #[test]
@@ -71,7 +89,7 @@ fn license_families() {
 fn hash_all_distinct() {
     use std::collections::HashSet;
     let set: HashSet<DataLicense> = DataLicense::iter().collect();
-    assert_eq!(set.len(), 8);
+    assert_eq!(set.len(), 11);
 }
 
 // -----------------------------------------------------------------
@@ -83,6 +101,35 @@ fn spdx_ids_non_empty() {
     for license in DataLicense::iter() {
         assert!(!license.spdx_id().is_empty(), "{license:?}");
     }
+}
+
+#[test]
+fn from_spdx_id_roundtrip() {
+    for license in DataLicense::iter() {
+        assert_eq!(DataLicense::from_spdx_id(license.spdx_id()), Some(license));
+    }
+}
+
+#[test]
+fn from_spdx_id_accepts_expected_external_identifier() {
+    assert_eq!(
+        DataLicense::from_spdx_id("CC-BY-SA-4.0"),
+        Some(DataLicense::CcBySa)
+    );
+}
+
+#[test]
+fn from_spdx_id_rejects_unknown() {
+    for bad in ["", "GPL-3.0", "cc-by-4.0", "cc-by-sa-4.0"] {
+        assert_eq!(DataLicense::from_spdx_id(bad), None);
+    }
+}
+
+#[test]
+fn try_from_str_error_carries_input() {
+    let err = <DataLicense as TryFrom<&str>>::try_from("GPL-3.0").unwrap_err();
+    assert_eq!(err, UnknownSpdxId("GPL-3.0".into()));
+    assert!(err.to_string().contains("GPL-3.0"));
 }
 
 #[test]
@@ -107,6 +154,7 @@ fn display_names_non_empty() {
 fn public_domain_licenses() {
     assert!(DataLicense::Cc0.is_public_domain());
     assert!(DataLicense::Pddl.is_public_domain());
+    assert!(DataLicense::Pdm.is_public_domain());
     for v in [
         DataLicense::CcBy,
         DataLicense::CcBySa,
@@ -114,6 +162,8 @@ fn public_domain_licenses() {
         DataLicense::CcByNcSa,
         DataLicense::OdcBy,
         DataLicense::OdcOdbl,
+        DataLicense::CdlaPermissive2_0,
+        DataLicense::CdlaSharing1_0,
     ] {
         assert!(!v.is_public_domain(), "{v:?}");
     }
@@ -128,6 +178,9 @@ fn commercial_use() {
         DataLicense::Pddl,
         DataLicense::OdcBy,
         DataLicense::OdcOdbl,
+        DataLicense::CdlaPermissive2_0,
+        DataLicense::CdlaSharing1_0,
+        DataLicense::Pdm,
     ] {
         assert!(v.allows_commercial_use(), "{v:?}");
     }
@@ -140,14 +193,19 @@ fn share_alike() {
     assert!(DataLicense::CcBySa.requires_share_alike());
     assert!(DataLicense::CcByNcSa.requires_share_alike());
     assert!(DataLicense::OdcOdbl.requires_share_alike());
+    assert!(DataLicense::CdlaSharing1_0.requires_share_alike());
     assert!(!DataLicense::CcBy.requires_share_alike());
     assert!(!DataLicense::Cc0.requires_share_alike());
+    assert!(!DataLicense::CdlaPermissive2_0.requires_share_alike());
+    assert!(!DataLicense::Pdm.requires_share_alike());
 }
 
 #[test]
 fn attribution() {
     assert!(!DataLicense::Cc0.requires_attribution());
     assert!(!DataLicense::Pddl.requires_attribution());
+    assert!(!DataLicense::Pdm.requires_attribution());
+    assert!(!DataLicense::CdlaPermissive2_0.requires_attribution());
     for v in [
         DataLicense::CcBy,
         DataLicense::CcBySa,
@@ -155,6 +213,7 @@ fn attribution() {
         DataLicense::CcByNcSa,
         DataLicense::OdcBy,
         DataLicense::OdcOdbl,
+        DataLicense::CdlaSharing1_0,
     ] {
         assert!(v.requires_attribution(), "{v:?}");
     }
@@ -174,6 +233,10 @@ fn public_domain_compatible_with_everything() {
         assert!(
             DataLicense::Pddl.is_compatible_with(&other),
             "PDDL vs {other:?}"
+        );
+        assert!(
+            DataLicense::Pdm.is_compatible_with(&other),
+            "PDM vs {other:?}"
         );
     }
 }
@@ -215,6 +278,10 @@ fn most_restrictive_incompatible_returns_none() {
         DataLicense::most_restrictive(DataLicense::CcBy, DataLicense::CcByNc),
         None
     );
+    assert_eq!(
+        DataLicense::most_restrictive(DataLicense::CcBy, DataLicense::OdcOdbl),
+        None
+    );
 }
 
 // -----------------------------------------------------------------
@@ -222,17 +289,19 @@ fn most_restrictive_incompatible_returns_none() {
 // -----------------------------------------------------------------
 
 #[test]
-fn cross_family_sa_incompatible() {
+fn cross_family_sa_now_incompatible() {
     // CC-BY-SA (band 2) vs ODbL (band 2) — same restrictiveness but different families
-    // Current logic: both SA and same restrictiveness → compatible (by band match)
-    // This test documents the actual behavior.
-    let result = DataLicense::CcBySa.is_compatible_with(&DataLicense::OdcOdbl);
-    // Both are band 2, so under the current "same restrictiveness band" rule
-    // they are treated as compatible.
-    assert!(
-        result,
-        "CC-BY-SA and ODbL are in the same restrictiveness band"
-    );
+    // is incompatible because share-alike obligations are family-local.
+    assert!(!DataLicense::CcBySa.is_compatible_with(&DataLicense::OdcOdbl));
+    assert!(!DataLicense::OdcOdbl.is_compatible_with(&DataLicense::CcBySa));
+}
+
+#[test]
+fn cross_family_sa_and_non_sa_incompatible() {
+    assert!(!DataLicense::CcBy.is_compatible_with(&DataLicense::OdcOdbl));
+    assert!(!DataLicense::OdcOdbl.is_compatible_with(&DataLicense::CcBy));
+    assert!(!DataLicense::CdlaSharing1_0.is_compatible_with(&DataLicense::CcBySa));
+    assert!(!DataLicense::CcBySa.is_compatible_with(&DataLicense::CdlaPermissive2_0));
 }
 
 #[test]
