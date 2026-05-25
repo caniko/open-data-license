@@ -35,7 +35,7 @@ jobs:
         run: nix develop -c cargo install cargo-deny --locked --version 0.18.3
 
       - name: Check MSRV
-        run: nix develop -c cargo +1.85 check --all-targets
+        run: nix develop -c cargo check --all-targets
 
       - name: Audit dependencies
         run: nix develop -c cargo audit
