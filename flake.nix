@@ -8,6 +8,10 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     git-hooks.url = "github:cachix/git-hooks.nix";
+    simit = {
+      url = "git+https://codeberg.org/caniko/simit.git?ref=refs/heads/trunk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     flake-utils.inputs.systems.follows = "systems";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
@@ -24,6 +28,7 @@
     rust-overlay,
     treefmt-nix,
     git-hooks,
+    simit,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -114,6 +119,7 @@
               pkgs.mdbook
               pkgs.pre-commit
               pkgs.rust-analyzer
+              simit.packages.${system}.default
             ]
             ++ pre-commit-check.enabledPackages;
           shellHook = pre-commit-check.shellHook;
