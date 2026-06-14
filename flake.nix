@@ -12,6 +12,11 @@
       url = "git+https://codeberg.org/caniko/simit.git?ref=refs/heads/trunk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    plinth = {
+      url = "git+https://codeberg.org/caniko/plinth.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
 
     flake-utils.inputs.systems.follows = "systems";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
@@ -29,6 +34,7 @@
     treefmt-nix,
     git-hooks,
     simit,
+    plinth,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -74,11 +80,22 @@
             cp -r docs/book $out
           '';
         };
+        website = plinth.lib.${system}.mkProjectSite {
+          pname = "open-data-license-website";
+          domain = "open-data-license.tartanoglu.com";
+          configPath = ./website/plinth-project.toml;
+          docsPackage = docs;
+        };
       in {
         packages = {
           default = package;
           docs = docs;
-          site = docs;
+          website = website;
+          site = website;
+        };
+
+        apps.deploy-pages = plinth.lib.${system}.mkDeployPagesApp {
+          domain = "open-data-license.tartanoglu.com";
         };
 
         checks = {
