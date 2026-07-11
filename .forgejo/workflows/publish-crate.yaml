@@ -80,6 +80,12 @@ jobs:
           OMNIX_REF: 'github:juspay/omnix/v1.3.2'
         run: nix run "$OMNIX_REF" -- ci run
 
+      - name: Check flake
+        run: nix flake check
+
+      - name: Test
+        run: nix develop -c cargo test
+
       - name: Check cargo-audit tool
         run: nix develop -c command -v cargo-audit
 
@@ -102,7 +108,10 @@ jobs:
         run: nix develop -c cargo deny check bans licenses sources
 
       - name: Build docs
-        run: nix develop -c cargo doc --no-deps --all-features
+        run: nix develop .#docs -c cargo doc --no-deps --all-features
+
+      - name: Clippy
+        run: nix develop -c cargo clippy --all-targets -- --deny warnings
 
       - name: Dry-run publish
         run: nix develop -c cargo publish --dry-run
