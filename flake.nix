@@ -2,6 +2,7 @@
   description = "Open data license enum with SPDX IDs and compatibility rules";
 
   inputs = {
+    rs-harbor.url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=9bfa8bdb0ecb22d7bc11448665f7fbaebae7a759";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
@@ -27,6 +28,7 @@
 
   outputs = {
     self,
+    rs-harbor,
     nixpkgs,
     flake-utils,
     crane,
@@ -45,7 +47,14 @@
         };
 
         rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+      craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+      buildCache = rs-harbor.lib.mkBuildCachePolicy {
+        inherit pkgs;
+        sccachePackage = rs-harbor.packages.${system}.sccache;
+        cacheRoot = null;
+        namespaceScope = "canix-rust";
+        namespaceGeneration = 5;
+      };
         src = craneLib.cleanCargoSource ./.;
         commonArgs = {
           inherit src;
@@ -53,7 +62,9 @@
         };
 
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+      package = buildCache.withRustCache {
         package = craneLib.buildPackage (commonArgs // {inherit cargoArtifacts;});
+      };
         treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./nix/treefmt.nix);
         pre-commit-check = git-hooks.lib.${system}.run {
           src = ./.;
