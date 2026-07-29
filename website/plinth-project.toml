@@ -1,12 +1,16 @@
 [site]
 title = "open-data-license"
-description = "<!-- simit:badges:start -->"
+description = "Open data license enum (CC, ODC) with SPDX IDs and compatibility rules"
 base_url = "/"
 footer_note = "Generated from repository metadata by the plinth-project FOSS sweep."
 
 [[nav]]
 label = "Overview"
 href = "#overview"
+
+[[nav]]
+label = "Usage"
+href = "#usage"
 
 [[nav]]
 label = "Source"
@@ -19,27 +23,66 @@ href = "ssh://git@codeberg.org/caniko/open-data-license.git"
 [[pages]]
 slug = "index"
 title = "open-data-license"
-description = "<!-- simit:badges:start -->"
+description = "Open data license enum (CC, ODC) with SPDX IDs and compatibility rules"
 
 [[pages.sections]]
 type = "hero"
 title = "open-data-license"
-tagline = "<!-- simit:badges:start -->"
-subtitle = "<!-- simit:badges:start -->"
+tagline = "Open data license enum"
+subtitle = "CC and ODC SPDX IDs with compatibility rules."
 
 [[pages.sections.ctas]]
 label = "View source"
 href = "ssh://git@codeberg.org/caniko/open-data-license.git"
 primary = true
 
+[[pages.sections.ctas]]
+label = "Read the API"
+href = "https://docs.rs/open-data-license"
+
 [[pages.sections]]
 type = "feature_grid"
 id = "overview"
 
 [[pages.sections.features]]
-title = "Rust"
-description = "Project technology detected from repository manifests."
+title = "License metadata"
+description = "Expose SPDX identifiers, canonical rights URIs, and display names for scientific and research datasets."
 
 [[pages.sections.features]]
-title = "Nix"
-description = "Project technology detected from repository manifests."
+title = "Compatibility helpers"
+description = "Check whether two dataset licenses can be combined and select the more restrictive compatible result."
+highlight = true
+
+[[pages.sections.features]]
+title = "Open-data coverage"
+description = "Cover Creative Commons, Open Data Commons, CDLA, and public-domain license families in one typed enum."
+
+[[pages.sections.features]]
+title = "Stable Rust API"
+description = "Use serde round-tripping by enum identifier, SPDX parsing, and optional OpenAPI schemas through the utoipa feature."
+
+[[pages.sections.features]]
+title = "Rights made explicit"
+description = "Surface the underlying SPDX identifier and rights URI so downstream users can review the actual license terms."
+
+[[pages.sections.features]]
+title = "Research-ready metadata"
+description = "Keep license decisions visible in scientific and research dataset combination workflows without providing legal advice."
+
+[[pages.sections]]
+type = "workflow_steps"
+id = "usage"
+heading = "From license to compatibility check"
+intro = "Keep license decisions explicit in dataset workflows: choose a typed value, expose its canonical metadata, then check combinations conservatively."
+
+[[pages.sections.steps]]
+title = "Choose a license"
+description = "let license = DataLicense::CcBySa;"
+
+[[pages.sections.steps]]
+title = "Expose metadata"
+description = "license.spdx_id() and license.rights_uri()"
+
+[[pages.sections.steps]]
+title = "Check the combination"
+description = "Compare it with another supported license."
