@@ -2,7 +2,7 @@
   description = "Open data license enum with SPDX IDs and compatibility rules";
 
   inputs = {
-    rs-harbor.url = "git+https://codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=9bfa8bdb0ecb22d7bc11448665f7fbaebae7a759";
+    rs-harbor.url = "git+ssh://git@codeberg.org/caniko/rs-harbor.git?ref=trunk&rev=f209ddbca3fdbb0dc31fa3886ccc2ff7369c18ac";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
@@ -46,8 +46,9 @@
           inherit system overlays;
         };
 
-        rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+        toolchain = rs-harbor.lib.mkToolchain { inherit pkgs; toolchainProfile = "stable"; };
+      rustToolchain = toolchain.rustToolchain;
+      craneLib = toolchain.craneLib;
       buildCache = rs-harbor.lib.mkBuildCachePolicy {
         inherit pkgs;
         sccachePackage = rs-harbor.packages.${system}.sccache;
