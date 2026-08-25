@@ -18,7 +18,7 @@ If you need repository state that is newer than the last published release, depe
 
 ```toml
 [dependencies]
-open-data-license = { git = "https://codeberg.org/caniko/open-data-license.git", tag = "v0.1.0" }
+open-data-license = { git = "https://github.com/caniko/open-data-license.git", tag = "v0.1.0" }
 ```
 
 Basic usage:

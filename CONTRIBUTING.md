@@ -2,7 +2,7 @@
 
 Contributions are welcome on the primary Codeberg repository. Open pull requests against the `trunk` branch at:
 
-<https://codeberg.org/caniko/open-data-license>
+<https://github.com/caniko/open-data-license>
 
 Mirrors on other forges are read-only. Please do not open issues or pull requests on mirrors unless the mirror explicitly points back to Codeberg for project coordination.
 

@@ -2,8 +2,8 @@
 
 [![crates.io](https://img.shields.io/crates/v/open-data-license)](https://crates.io/crates/open-data-license)
 [![docs.rs](https://img.shields.io/docsrs/open-data-license)](https://docs.rs/open-data-license)
-[![license](https://img.shields.io/crates/l/open-data-license)](https://codeberg.org/caniko/open-data-license/src/branch/trunk/LICENSE)
-[![CI](https://codeberg.org/caniko/open-data-license/actions/workflows/ci.yaml/badge.svg?branch=trunk)](https://codeberg.org/caniko/open-data-license/actions)
+[![license](https://img.shields.io/crates/l/open-data-license)](https://github.com/caniko/open-data-license/blob/trunk/LICENSE)
+[![CI](https://github.com/caniko/open-data-license/actions/workflows/ci.yaml/badge.svg?branch=trunk)](https://github.com/caniko/open-data-license/actions)
 
 `open-data-license` provides a small Rust enum for open data licenses used in scientific and research datasets. It exposes SPDX identifiers, canonical rights URIs, display names, and compatibility helpers for combining licensed datasets.
 
@@ -29,7 +29,7 @@ If you need repository state that is newer than the last published release, depe
 
 ```toml
 [dependencies]
-open-data-license = { git = "https://codeberg.org/caniko/open-data-license.git", tag = "0.2.0" }
+open-data-license = { git = "https://github.com/caniko/open-data-license.git", tag = "0.2.0" }
 ```
 
 ## Example
@@ -54,7 +54,7 @@ This crate does not provide legal advice. Consumers should surface the underlyin
 ## Documentation
 
 - API documentation: <https://docs.rs/open-data-license>
-- Source repository: <https://codeberg.org/caniko/open-data-license>
+- Source repository: <https://github.com/caniko/open-data-license>
 - Project documentation: <https://caniko.codeberg.page/open-data-license/>
 
 ## Release Validation
