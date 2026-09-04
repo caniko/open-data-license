@@ -2,7 +2,8 @@
   description = "Open data license enum with SPDX IDs and compatibility rules";
 
   inputs = {
-    rs-harbor.url = "git+ssh://git@github.com/caniko/rs-harbor.git?ref=trunk&rev=05cc4f162b55fa904b687db1821e2463fa813e50";
+    harbor-rs.url = "git+https://github.com/caniko/harbor-rs.git?ref=trunk&rev=05cc4f162b55fa904b687db1821e2463fa813e50";
+    rs-harbor.follows = "harbor-rs";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     crane.url = "github:ipetkov/crane";
@@ -10,7 +11,7 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     git-hooks.url = "github:cachix/git-hooks.nix";
     simit = {
-      url = "git+https://codeberg.org/caniko/simit.git?ref=refs/heads/trunk";
+      url = "git+https://github.com/caniko/simit.git?ref=refs/heads/trunk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     plinth = {
@@ -28,7 +29,7 @@
 
   outputs = {
     self,
-    rs-harbor,
+    harbor-rs,
     nixpkgs,
     flake-utils,
     crane,
@@ -46,12 +47,12 @@
           inherit system overlays;
         };
 
-        toolchain = rs-harbor.lib.mkToolchain { inherit pkgs; toolchainProfile = "stable"; };
+        toolchain = harbor-rs.lib.mkToolchain { inherit pkgs; toolchainProfile = "stable"; };
       rustToolchain = toolchain.rustToolchain;
       craneLib = toolchain.craneLib;
-      buildCache = rs-harbor.lib.mkBuildCachePolicy {
+      buildCache = harbor-rs.lib.mkBuildCachePolicy {
         inherit pkgs;
-        sccachePackage = rs-harbor.packages.${system}.sccache;
+        sccachePackage = harbor-rs.packages.${system}.sccache;
         cacheRoot = null;
         namespaceScope = "canix-rust";
         namespaceGeneration = 5;
