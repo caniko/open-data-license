@@ -105,6 +105,13 @@
 
         formatter = treefmtEval.config.build.wrapper;
 
+        devShells.msrv = pkgs.mkShell {
+          packages = [pkgs.rust-bin.stable."1.85.0".minimal];
+          RUSTFLAGS = "";
+          CARGO_ENCODED_RUSTFLAGS = "";
+          RUSTC_WRAPPER = "";
+        };
+        devShells.docs = self.devShells.${system}.default;
         devShells.default = pkgs.mkShell {
           packages =
             [
