@@ -1,5 +1,11 @@
 # open-data-license
 
+<!-- simit:badges:start -->
+
+[![CI](https://img.shields.io/badge/CI-managed-2088ff)](.github/workflows/ci.yaml) [![Nix](https://img.shields.io/badge/Nix-drift-5277c3)](flake.nix) [![docs](https://img.shields.io/badge/docs-enabled-6f42c1)](docs) [![crates.io](https://img.shields.io/badge/crates.io-ready-f46623)](https://crates.io/crates/open-data-license)
+
+<!-- simit:badges:end -->
+
 [![crates.io](https://img.shields.io/crates/v/open-data-license)](https://crates.io/crates/open-data-license)
 [![docs.rs](https://img.shields.io/docsrs/open-data-license)](https://docs.rs/open-data-license)
 [![license](https://img.shields.io/crates/l/open-data-license)](https://github.com/caniko/open-data-license/blob/trunk/LICENSE)
