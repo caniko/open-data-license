@@ -18,20 +18,17 @@ These checks enforce the crate's intended packaging and compatibility shape:
 - `--all-features` proves the optional schema integration still compiles and documents correctly.
 - `cargo package --list` confirms release artifacts include the docs-facing files and examples shipped in `Cargo.toml`.
 
-The Codeberg repository is public and uses Forgejo Actions workflows under `.forgejo/workflows/`. CI jobs are written for the self-hosted `atlas` runner.
+The GitHub repository uses Actions workflows under `.github/workflows/`. CI runs
+on GitHub-hosted `ubuntu-24.04` runners. Inspect the repository's Actions tab for
+CI and release logs; the former Forgejo workflows and `atlas` runner are no
+longer used by this repository.
 
-Before a Codeberg workflow can run, enable Actions in the repository UI:
-
-```text
-Settings -> Units -> Enable Actions
-```
-
-Actual crates.io publication remains human-in-the-loop:
-
-```sh
-cargo login
-cargo publish
-```
+Actual crates.io publication is initiated by a maintainer pushing a signed
+`v<version>` tag. The generated `publish-crate.yaml` workflow requires
+`RELEASE_GPG_KEY_ID`, `RELEASE_GPG_PUBLIC_KEY_URL`, and `CARGO_REGISTRY_TOKEN`
+repository secrets. Before tagging, complete the release gate above and ensure
+the tag version matches `Cargo.toml`. Never use the CI workflow as evidence that
+a publication succeeded: confirm the release job and the crates.io version.
 
 ## Documentation Maintenance
 
