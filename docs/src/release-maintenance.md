@@ -27,10 +27,23 @@ publishes the site to Codeberg Pages. Inspect Forgejo Actions for Pages failures
 Actual crates.io publication is initiated by a maintainer pushing a signed
 unprefixed `<version>` tag, such as `0.2.1`. The generated `publish-crate.yaml`
 workflow requires the `CRATES_IO_API_TOKEN` repository secret and imports the
-pinned public keys from `keys/maintainers.gpg` to verify the tag; no release-key
-secrets are consumed. Before tagging, complete the release gate above and ensure
+pinned public keys from the default branch's `keys/maintainers.gpg` to verify
+the tag; no release-key secrets are consumed. The verified tag's peeled commit
+must match the immutable event checkout before package metadata is evaluated.
+Retry the original tag-push run rather than dispatching a branch. Before tagging,
+complete the release gate above and ensure
 the tag version matches `Cargo.toml`. Never use the CI workflow as evidence that
 a publication succeeded: confirm the release job and the crates.io version.
+
+Regenerate or check the GitHub workflows with the qualified Simit revision,
+preserving the repository's existing public trust root:
+
+```sh
+SIMIT_MAINTAINERS_GPG="$PWD/keys/maintainers.gpg" nix run github:caniko/simit/0cab0eb028305a2bea3573abe3d61c85489e8a68 -- init ci --check --diff
+```
+
+Omit `--check --diff` to regenerate. Review the resulting changes; do not edit
+generated workflows by hand or replace maintainer keys from local Git settings.
 
 ## Documentation Maintenance
 
